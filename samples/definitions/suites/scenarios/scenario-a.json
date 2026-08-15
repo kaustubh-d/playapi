@@ -1,0 +1,139 @@
+{
+  "name": "Scenario A: Create order and verify shipment status",
+  "description": "Login, create order, poll status, verify",
+  "variables": {
+    "product_id": "SKU-1111"
+  },
+  "steps": [
+    {
+      "id": "login",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/auth/login",
+        "body": {
+          "username": "{{test_user}}",
+          "password": "{{test_password}}"
+        }
+      },
+      "capture": [
+        {
+          "name": "auth_token",
+          "from": "body",
+          "path": "data.token"
+        },
+        {
+          "name": "session_id",
+          "from": "headers",
+          "path": "X-Session-Id"
+        }
+      ],
+      "assertions": {
+        "status": {
+          "equals": 200
+        },
+        "body": [
+          {
+            "path": "data.token",
+            "exists": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "create_order",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/orders",
+        "headers": {
+          "Authorization": "Bearer {{auth_token}}"
+        },
+        "body": {
+          "product_id": "{{product_id}}",
+          "currency": "{{default_currency}}",
+          "quantity": 2
+        }
+      },
+      "capture": [
+        {
+          "name": "order_id",
+          "from": "body",
+          "path": "data.order.id"
+        },
+        {
+          "name": "order_status",
+          "from": "body",
+          "path": "data.order.status"
+        }
+      ],
+      "assertions": {
+        "status": {
+          "equals": 201
+        },
+        "headers": {
+          "Content-Type": {
+            "contains": "application/json"
+          }
+        },
+        "body": [
+          {
+            "path": "data.order.status",
+            "in": ["CREATED", "PENDING"]
+          },
+          {
+            "path": "data.order.total_amount",
+            "greater_than": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "confirm_payment",
+      "run_if": {
+        "field": "{{order_status}}",
+        "operator": "equals",
+        "value": "PENDING"
+      },
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/orders/{{order_id}}/confirm-payment",
+        "headers": {
+          "Authorization": "Bearer {{auth_token}}"
+        },
+        "body": {
+          "payment_method": "CARD"
+        }
+      },
+      "assertions": {
+        "status": {
+          "equals": 200
+        }
+      }
+    },
+    {
+      "id": "check_shipment_status",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/orders/{{order_id}}/shipment",
+        "headers": {
+          "Authorization": "Bearer {{auth_token}}"
+        }
+      },
+      "on_failure": "continue",
+      "assertions": {
+        "status": {
+          "equals": 200
+        },
+        "body": [
+          {
+            "path": "data.shipment.carrier",
+            "exists": true
+          },
+          {
+            "path": "data.shipment.eta_days",
+            "less_than": 10
+          }
+        ]
+      }
+    }
+  ]
+}
