@@ -1,0 +1,51 @@
+import { readFileSync, readdirSync } from 'node:fs';
+import * as path from 'node:path';
+
+import { SuiteConfig, parseSuiteConfig } from './objects/suite-parser';
+import { ScenarioObject, parseScenarioFile } from './objects/scenario-parser';
+
+export interface LoadedTestSuite {
+  suiteConfig: SuiteConfig;
+  scenarios: ScenarioObject[];
+}
+
+function listJsonFilesRecursively(dirPath: string): string[] {
+  const entries = readdirSync(dirPath, { withFileTypes: true });
+  const jsonFiles: string[] = [];
+
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
+
+    if (entry.isDirectory()) {
+      jsonFiles.push(...listJsonFilesRecursively(fullPath));
+      continue;
+    }
+
+    if (entry.isFile() && entry.name.toLowerCase().endsWith('.json')) {
+      jsonFiles.push(path.resolve(fullPath));
+    }
+  }
+
+  return jsonFiles.sort((a, b) => a.localeCompare(b));
+}
+
+export function loadTestSuiteFromFolder(folderPath: string): LoadedTestSuite {
+  const resolvedPath = path.resolve(folderPath);
+
+  const suiteConfigPath = path.join(resolvedPath, 'suite-config.json');
+  const suiteConfig = parseSuiteConfig(suiteConfigPath);
+
+  const scenariosDir = path.join(resolvedPath, 'scenarios');
+  const scenarioFiles = listJsonFilesRecursively(scenariosDir);
+
+  const scenarios = scenarioFiles.map((scenarioPath) => {
+    return parseScenarioFile(scenarioPath);
+  });
+
+  return {
+    suiteConfig: suiteConfig,
+    scenarios,
+  };
+}
+
+export default loadTestSuiteFromFolder;
