@@ -1,8 +1,10 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { readdirSync } from 'node:fs';
 import * as path from 'node:path';
 
-import { SuiteConfig, parseSuiteConfig } from './objects/suite-parser';
-import { ScenarioObject, parseScenarioFile } from './objects/scenario-parser';
+import { parseSuiteConfig } from './parsers/suite-parser';
+import { parseScenarioFile } from './parsers/scenario-parser';
+import { SuiteConfig } from './objects/suites';
+import { ScenarioObject } from './objects/scenarios';
 
 export interface LoadedTestSuite {
   suiteConfig: SuiteConfig;

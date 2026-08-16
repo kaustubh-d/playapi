@@ -1,12 +1,7 @@
+/// <reference types="node" />
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-
-export type JsonPrimitive = string | number | boolean | null;
-export interface JsonObject {
-  [key: string]: any;
-}
-export type JsonArray = any[];
-export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
+import { JsonValue, JsonObject, JsonArray } from '../objects/json-types';
 
 export function parseJsonFile<T = JsonValue>(filePath: string): T {
   const resolvedPath = path.resolve(filePath);
