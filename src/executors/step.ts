@@ -6,15 +6,6 @@ import { runAssertions } from './assertion';
 import { captureVariablesFromResponse } from './capture-variables';
 
 
-// export interface ScenarioStep {
-//   id?: string;
-//   run_if?: ConditionExpression;
-//   request?: HttpRequest;
-//   capture?: CaptureDefinition[];
-//   assertions?: AssertionsMap;
-//   on_failure?: 'continue' | 'abort' | (string & {});
-//   [key: string]: JsonValue | undefined;
-// }
 export async function executeStep(apiRequestContext: APIRequestContext,
   step: ScenarioStep,
   variables: VariableMap,
