@@ -1,4 +1,4 @@
-import { APIRequestContext } from '@playwright/test';
+import { APIRequestContext, TestInfo } from '@playwright/test';
 import { HttpRequest, HttpResponse } from '../objects/http';
 import { JsonObject, JsonArray, JsonPrimitive } from '../objects/json-types';
 import { VariableMap } from '../objects/variables';
@@ -67,6 +67,7 @@ function processHttpRequestVariables(
 // return: A promise that resolves to an HttpResponse object containing the response status, headers, and body.
 export async function executeHttpRequest(
   apiRequestContext: APIRequestContext,
+  testInfo: TestInfo,
   request: HttpRequest,
   variables: VariableMap,
 ): Promise<HttpResponse> {
@@ -84,6 +85,12 @@ export async function executeHttpRequest(
 
   if (requestObject.body !== undefined) {
     options.data = requestObject.body as any;
+    if (logger.shouldLogDebug()) {
+      await testInfo.attach(`${testInfo.title}: Request details`, {
+        body: JSON.stringify(requestObject.body, null, 2),
+        contentType: 'application/json'
+      });
+    }
   }
 
   logger.debug(`Executing HTTP request: ${method} ${requestObject.url}`);
@@ -93,6 +100,13 @@ export async function executeHttpRequest(
     await apiRequestContext.fetch(requestObject.url, options).then(async response => {
     const body = await response.text();
     const jsonBody = body ? JSON.parse(body) : undefined;
+
+    if (logger.shouldLogDebug()) {
+      await testInfo.attach(`${testInfo.title}: Response details`, {
+        body: body,
+        contentType: 'application/json'
+      });
+    }
 
     logger.debug(`Response status: ${response.status()} ${response.statusText()}`);
     logger.debug(`Response headers: ${JSON.stringify(response.headers(), null, 2)}`);

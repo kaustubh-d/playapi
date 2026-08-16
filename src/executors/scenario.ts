@@ -1,10 +1,11 @@
-import { test, APIRequestContext } from '@playwright/test';
+import { test, APIRequestContext, TestInfo } from '@playwright/test';
 import { ScenarioObject } from '../objects/scenarios';
 import { executeStep } from './step';
 import { VariableMap } from '../objects/variables';
 import { logger } from '../utils/logger';
 
 export async function  executeScenario(apiRequestCtx: APIRequestContext,
+  testInfo: TestInfo,
   scenario: ScenarioObject,
   variables: VariableMap,
 ): Promise<VariableMap> {
@@ -15,7 +16,8 @@ export async function  executeScenario(apiRequestCtx: APIRequestContext,
     const stepName = step?.id ?? 'Unnamed step';
     // Execute the step and wait for the response
     await test.step(`Executing Step: ${stepName}`, async () => {
-      const stepCapturedVariables = await executeStep(apiRequestCtx, step, variables);
+      const stepCapturedVariables = await executeStep(
+        apiRequestCtx, testInfo, step, variables);
 
       logger.debug(`Executed step: ${step.id ?? 'Unnamed step'},
         capturedVariables: ${JSON.stringify(capturedVariables, null, 2)}`);

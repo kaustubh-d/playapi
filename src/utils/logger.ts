@@ -84,10 +84,12 @@ export class PlayAPILogger {
   public warn(msg: string, ctx?: unknown): void { this._log('WARNING', msg, ctx); }
   public error(msg: string, ctx?: unknown): void { this._log('ERROR', msg, ctx); }
   public fatal(msg: string, ctx?: unknown): void { this._log('FATAL', msg, ctx); }
+
+  public shouldLogDebug(ctx?: unknown): boolean { return this._shouldLog('DEBUG'); }
 }
 
 // Instantiate the singleton instance once
 export const logger = new PlayAPILogger({
   // Read level from env vars (e.g. for CI/CD runs) or default to INFO
-  level: (process.env.LOG_LEVEL as any) || 'INFO',
+  level: (process.env.LOG_LEVEL as any) || 'WARNING',
 });

@@ -1,4 +1,4 @@
-import type { APIRequestContext } from '@playwright/test';
+import type { APIRequestContext, TestInfo } from '@playwright/test';
 import { ScenarioStep } from '../objects/scenarios';
 import { VariableMap } from '../objects/variables';
 import { executeHttpRequest } from './request';
@@ -7,6 +7,7 @@ import { captureVariablesFromResponse } from './capture-variables';
 
 
 export async function executeStep(apiRequestContext: APIRequestContext,
+  testInfo: TestInfo,
   step: ScenarioStep,
   variables: VariableMap,
 ): Promise<VariableMap> {
@@ -15,7 +16,8 @@ export async function executeStep(apiRequestContext: APIRequestContext,
   // TODO: run_if condition check
 
   // Prepare and send the request
-  const response = await executeHttpRequest(apiRequestContext, step.request!, variables);
+  const response = await executeHttpRequest(apiRequestContext, testInfo,
+    step.request!, variables);
 
   // Run assertions on the response
   runAssertions(response, step.assertions!);

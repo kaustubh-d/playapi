@@ -31,15 +31,17 @@ for (const suiteFolder of suiteFolders) {
   const suiteName = loadedSuite.suiteConfig?.suite?.name ?? path.basename(suiteFolder);
   logger.info(`Loaded suite: ${suiteName} from folder: ${suiteFolder}`);
 
+  // Define suite
   test.describe(suiteName, () => {
     for (const scenario of loadedSuite.scenarios) {
       const scenarioName = scenario?.name ?? 'Unnamed scenario';
 
-      test(scenarioName, async ({ request }) => {
+      // Define scenario based tests
+      test(scenarioName, async ({ request }, testInfo) => {
         logger.debug(`Executing scenario: ${scenarioName}`);
 
-        const capturedVariables = await executeScenario(request, scenario,
-          loadedSuite.suiteConfig.variables);
+        const capturedVariables = await executeScenario(request, testInfo,
+          scenario, loadedSuite.suiteConfig.variables);
 
         logger.debug(`Captured variables after executing scenario: ${scenarioName}:
           ${JSON.stringify(capturedVariables, null, 2)}`);
