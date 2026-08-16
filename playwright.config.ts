@@ -1,5 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
+import { logger } from './src/utils/logger';
+
+// Log configuration boot telemetry
+logger.info('Loading Playwright Configuration file...');
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv

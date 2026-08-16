@@ -2,6 +2,7 @@ import { HttpResponse } from '../objects/http';
 import { CaptureDefinition } from '../objects/scenarios';
 import { VariableMap, VariablePair } from '../objects/variables';
 import { resolvePath } from '../utils/json-helper';
+import { logger } from '../utils/logger';
 
 function captureFromBody(body: unknown, capture: CaptureDefinition): VariablePair | undefined {
   const value = resolvePath(body, capture.path);
@@ -31,7 +32,7 @@ export function captureVariablesFromResponse(response: HttpResponse, captureDefi
     return capturedVariables;
   }
 
-  console.log(`Capturing variables 
+  logger.debug(`Capturing variables
     from response ${JSON.stringify(response, null, 2)} 
     with definitions: ${JSON.stringify(captureDefinitions, null, 2)}`);
 
@@ -47,7 +48,7 @@ export function captureVariablesFromResponse(response: HttpResponse, captureDefi
         capturedVariables[result.variable_name] = result.variable_value;
       }
     } else {
-      console.warn(`Warning: Unsupported capture source '${capture.from}' for variable '${capture.name}'`);
+      logger.warn(`Warning: Unsupported capture source '${capture.from}' for variable '${capture.name}'`);
     }
   }
 

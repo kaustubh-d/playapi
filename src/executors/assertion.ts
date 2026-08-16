@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { AssertionsMap, BodyAssertion } from '../objects/scenarios';
 import { HttpResponse } from '../objects/http';
 import { resolvePath } from '../utils/json-helper';
-
+import { logger } from '../utils/logger';
 
 function toStringValue(value: unknown): string {
   if (value === undefined || value === null) {
@@ -168,7 +168,7 @@ function assertBodyValue(actualValue: unknown, assertion: BodyAssertion): void {
 // param: body: The response body to be asserted, can be an object, array, string, number, boolean, or null.
 // param: bodyAssertions: An array of body assertion objects, each containing a path and rules for validation.
 function assertBody(body: unknown, bodyAssertions: BodyAssertion[]): void {
-  console.log(`Asserting response body ${JSON.stringify(body)} with 
+  logger.debug(`Asserting response body ${JSON.stringify(body)} with
     ${JSON.stringify(bodyAssertions)} assertions.`);
   for (const assertion of bodyAssertions) {
     const actualValue = resolvePath(body, assertion.path);

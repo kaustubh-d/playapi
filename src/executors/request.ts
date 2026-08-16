@@ -2,6 +2,7 @@ import { APIRequestContext } from '@playwright/test';
 import { HttpRequest, HttpResponse } from '../objects/http';
 import { JsonObject, JsonArray, JsonPrimitive } from '../objects/json-types';
 import { VariableMap } from '../objects/variables';
+import { logger } from '../utils/logger';
 
 // This function processes the body of an HTTP request, replacing any variable placeholders with their corresponding values from the provided variables map.
 function processBodyVariables(
@@ -85,17 +86,17 @@ export async function executeHttpRequest(
     options.data = requestObject.body as any;
   }
 
-  console.log(`Executing HTTP request: ${method} ${requestObject.url}`);
-  console.log(`options: ${JSON.stringify(options, null, 2)}`);
+  logger.debug(`Executing HTTP request: ${method} ${requestObject.url}`);
+  logger.debug(`options: ${JSON.stringify(options, null, 2)}`);
 
   const httpResponse = 
     await apiRequestContext.fetch(requestObject.url, options).then(async response => {
     const body = await response.text();
     const jsonBody = body ? JSON.parse(body) : undefined;
 
-    console.log(`Response status: ${response.status()} ${response.statusText()}`);
-    console.log(`Response headers: ${JSON.stringify(response.headers(), null, 2)}`);
-    console.log(`Response body: ${body}`);
+    logger.debug(`Response status: ${response.status()} ${response.statusText()}`);
+    logger.debug(`Response headers: ${JSON.stringify(response.headers(), null, 2)}`);
+    logger.debug(`Response body: ${body}`);
 
     return {
       status: response.status(),

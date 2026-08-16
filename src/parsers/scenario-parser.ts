@@ -1,6 +1,7 @@
 import { parseJsonFile, getJsonValueByPath} from '../utils/json-helper';
 import { JsonValue } from '../objects/json-types';
 import { ScenarioObject, ScenarioStep } from '../objects/scenarios';
+import { logger } from '../utils/logger';
 
 export function parseScenarioFile(filePath: string): ScenarioObject {
   const data = parseJsonFile<JsonValue>(filePath);
@@ -9,7 +10,7 @@ export function parseScenarioFile(filePath: string): ScenarioObject {
     throw new Error(`Scenario file must contain a JSON object: ${filePath}`);
   }
 
-  console.log(`Parsed scenario file: ${filePath}`);
+  logger.info(`Parsed scenario file: ${filePath}`);
 
   return data as ScenarioObject;
 }
