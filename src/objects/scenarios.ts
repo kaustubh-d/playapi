@@ -1,4 +1,5 @@
-import { JsonValue, JsonObject, JsonArray, JsonPrimitive } from '../objects/json-types';
+import { JsonValue } from '../objects/json-types';
+import { HttpRequest } from './http';
 
 export interface ScenarioObject {
   name?: string;
@@ -18,19 +19,9 @@ export interface ScenarioStep {
   [key: string]: JsonValue | undefined;
 }
 
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-
-export interface HttpRequest {
-  method?: HttpMethod;
-  url?: string;
-  headers?: Record<string, string>;
-  body?: JsonObject | JsonArray | JsonPrimitive;
-  [key: string]: JsonValue | undefined;
-}
-
 export interface CaptureDefinition {
-  variable_name: string;
-  from: 'body' | 'headers' | 'response' | (string & {});
+  name: string;
+  from: 'body' | 'headers' | (string & {});
   path: string;
   [key: string]: JsonValue | undefined;
 }
@@ -48,6 +39,7 @@ export interface AssertionsMap {
   body?: BodyAssertion[];
   [key: string]: JsonValue | undefined;
 }
+
 
 export interface BodyAssertion {
   path: string;

@@ -9,6 +9,8 @@ export function parseScenarioFile(filePath: string): ScenarioObject {
     throw new Error(`Scenario file must contain a JSON object: ${filePath}`);
   }
 
+  console.log(`Parsed scenario file: ${filePath}`);
+
   return data as ScenarioObject;
 }
 

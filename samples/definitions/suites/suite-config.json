@@ -16,6 +16,6 @@
     }
   },
   "variables": {
-    "default_currency": "USD"
+    "base_url": "https://jsonplaceholder.typicode.com"
   }
 }

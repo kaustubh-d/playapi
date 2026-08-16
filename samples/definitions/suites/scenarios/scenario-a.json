@@ -1,138 +1,94 @@
 {
-  "name": "Scenario A: Create order and verify shipment status",
-  "description": "Login, create order, poll status, verify",
+  "name": "Scenario A: Create todo and verify in list",
+  "description": "Create a todo, get the created todo, list todos, verify created todo is in list",
   "variables": {
-    "product_id": "SKU-1111"
+    "base_url": "https://jsonplaceholder.typicode.com",
+    "user_id": "1"
   },
   "steps": [
     {
-      "id": "login",
+      "id": "create_todo",
       "request": {
         "method": "POST",
-        "url": "{{base_url}}/auth/login",
+        "url": "{{base_url}}/todos",
         "body": {
-          "username": "{{test_user}}",
-          "password": "{{test_password}}"
+          "title": "kd-test-todo title 1",
+          "completed": false,
+          "userId": "1"
         }
       },
       "capture": [
         {
-          "name": "auth_token",
+          "name": "todo_id",
           "from": "body",
-          "path": "data.token"
+          "path": "id"
         },
         {
-          "name": "session_id",
-          "from": "headers",
-          "path": "X-Session-Id"
-        }
-      ],
-      "assertions": {
-        "status": {
-          "equals": 200
-        },
-        "body": [
-          {
-            "path": "data.token",
-            "exists": true
-          }
-        ]
-      }
-    },
-    {
-      "id": "create_order",
-      "request": {
-        "method": "POST",
-        "url": "{{base_url}}/orders",
-        "headers": {
-          "Authorization": "Bearer {{auth_token}}"
-        },
-        "body": {
-          "product_id": "{{product_id}}",
-          "currency": "{{default_currency}}",
-          "quantity": 2
-        }
-      },
-      "capture": [
-        {
-          "name": "order_id",
+          "name": "todo_text",
           "from": "body",
-          "path": "data.order.id"
-        },
-        {
-          "name": "order_status",
-          "from": "body",
-          "path": "data.order.status"
+          "path": "title"
         }
       ],
       "assertions": {
         "status": {
           "equals": 201
         },
-        "headers": {
-          "Content-Type": {
-            "contains": "application/json"
-          }
-        },
         "body": [
           {
-            "path": "data.order.status",
-            "in": ["CREATED", "PENDING"]
-          },
-          {
-            "path": "data.order.total_amount",
-            "greater_than": 0
-          }
-        ]
-      }
-    },
-    {
-      "id": "confirm_payment",
-      "run_if": {
-        "field": "{{order_status}}",
-        "operator": "equals",
-        "value": "PENDING"
-      },
-      "request": {
-        "method": "POST",
-        "url": "{{base_url}}/orders/{{order_id}}/confirm-payment",
-        "headers": {
-          "Authorization": "Bearer {{auth_token}}"
-        },
-        "body": {
-          "payment_method": "CARD"
-        }
-      },
-      "assertions": {
-        "status": {
-          "equals": 200
-        }
-      }
-    },
-    {
-      "id": "check_shipment_status",
-      "request": {
-        "method": "GET",
-        "url": "{{base_url}}/orders/{{order_id}}/shipment",
-        "headers": {
-          "Authorization": "Bearer {{auth_token}}"
-        }
-      },
-      "on_failure": "continue",
-      "assertions": {
-        "status": {
-          "equals": 200
-        },
-        "body": [
-          {
-            "path": "data.shipment.carrier",
+            "path": "id",
             "exists": true
           },
           {
-            "path": "data.shipment.eta_days",
-            "less_than": 10
+            "path": "title",
+            "exists": true
           }
         ]
+      }
+    },
+    {
+      "id": "get_created_todo",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/todos/1"
+      },
+      "assertions": {
+        "status": {
+          "equals": 200
+        },
+        "body": [
+          {
+            "path": "id",
+            "equals": 1
+          },
+          {
+            "path": "title",
+            "equals": "delectus aut autem"
+          }
+        ]
+      }
+    },
+    {
+      "id": "list_todos",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/todos"
+      },
+      "assertions": {
+        "status": {
+          "equals": 200
+        }
+      }
+    },
+    {
+      "id": "missing_todo_in_list",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/todos/12345"
+      },
+      "assertions": {
+        "status": {
+          "equals": 404
+        }
       }
     }
   ]
