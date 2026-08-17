@@ -7,12 +7,13 @@ import { LoadedTestSuite, loadTestSuiteFromFolder } from '../src/test-loader';
 import { executeScenario } from '../src/executors/scenario';
 
 const test_root = process.env.TEST_ROOT ?? __dirname;
-const suitesRoot = path.resolve(test_root, './definitions/suites');
+const suitesRoot = path.resolve(test_root, './yaml-definitions/suites');
 logger.info(`Looking for test suites in: ${suitesRoot}`);
 const suiteFolders: string[] = [];
 
-if (existsSync(path.join(suitesRoot, 'suite-config.json'))) {
-  logger.info(`Found suite-config.json in root folder: ${suitesRoot}`);
+if (existsSync(path.join(suitesRoot, 'suite-config.json')) ||
+    existsSync(path.join(suitesRoot, 'suite-config.yaml'))) {
+  logger.info(`Found suite-config in root folder: ${suitesRoot}`);
   suiteFolders.push(suitesRoot);
 } else {
   logger.error(`No suite-config.json found in root folder: \

@@ -23,8 +23,11 @@ function listJsonFilesRecursively(dirPath: string): string[] {
       continue;
     }
 
-    if (entry.isFile() && entry.name.toLowerCase().endsWith('.json')) {
-      jsonFiles.push(path.resolve(fullPath));
+    if (entry.isFile() && (
+      entry.name.toLowerCase().endsWith('.json') ||
+      entry.name.toLowerCase().endsWith('.yaml') ||
+      entry.name.toLowerCase().endsWith('.yml'))) {
+        jsonFiles.push(path.resolve(fullPath));
     }
   }
 
@@ -34,7 +37,7 @@ function listJsonFilesRecursively(dirPath: string): string[] {
 export function loadTestSuiteFromFolder(folderPath: string): LoadedTestSuite {
   const resolvedPath = path.resolve(folderPath);
 
-  const suiteConfigPath = path.join(resolvedPath, 'suite-config.json');
+  const suiteConfigPath = path.join(resolvedPath, 'suite-config.yaml');
   const suiteConfig = parseSuiteConfig(suiteConfigPath);
 
   const scenariosDir = path.join(resolvedPath, 'scenarios');

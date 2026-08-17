@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { AssertionsMap, BodyAssertion } from '../objects/scenarios';
 import { HttpResponse } from '../objects/http';
-import { resolvePath } from '../utils/json-helper';
+import { resolvePath } from '../utils/js-object-resolve';
 import { logger } from '../utils/logger';
 
 function toStringValue(value: unknown): string {

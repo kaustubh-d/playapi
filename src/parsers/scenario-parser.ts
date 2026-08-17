@@ -1,10 +1,21 @@
 import { parseJsonFile, getJsonValueByPath} from '../utils/json-helper';
 import { JsonValue } from '../objects/json-types';
+import { YamlValue } from '../objects/yaml-types'
+import { parseYamlFile } from '../utils/yaml-helper';
 import { ScenarioObject, ScenarioStep } from '../objects/scenarios';
 import { logger } from '../utils/logger';
 
 export function parseScenarioFile(filePath: string): ScenarioObject {
-  const data = parseJsonFile<JsonValue>(filePath);
+  const lowerFilePath = filePath.toLowerCase();
+  let data: JsonValue | YamlValue | null;
+
+  if (lowerFilePath.endsWith('.json')) {
+    data = parseJsonFile<JsonValue>(filePath);
+  } else if (lowerFilePath.endsWith('.yaml') || lowerFilePath.endsWith('.yml')) {
+    data = parseYamlFile<YamlValue>(filePath);
+  } else {
+    throw new Error(`Suite config file must have a .json, .yaml, or .yml extension: ${filePath}`);
+  }
 
   if (data === null || typeof data !== 'object' || Array.isArray(data)) {
     throw new Error(`Scenario file must contain a JSON object: ${filePath}`);

@@ -1,7 +1,7 @@
 import { HttpResponse } from '../objects/http';
 import { CaptureDefinition } from '../objects/scenarios';
 import { VariableMap, VariablePair } from '../objects/variables';
-import { resolvePath } from '../utils/json-helper';
+import { resolvePath } from '../utils/js-object-resolve';
 import { logger } from '../utils/logger';
 
 function captureFromBody(body: unknown, capture: CaptureDefinition): VariablePair | undefined {

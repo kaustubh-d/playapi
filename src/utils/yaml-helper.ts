@@ -1,27 +1,41 @@
 /// <reference types="node" />
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { JsonValue, JsonObject, JsonArray } from '../objects/json-types';
+import { parse as parseYaml } from 'yaml';
 
-export function parseJsonFile<T = JsonValue>(filePath: string): T {
+export type YamlValue =
+  | string
+  | number
+  | boolean
+  | null
+  | YamlObject
+  | YamlArray;
+
+export type YamlObject = { [key: string]: YamlValue };
+export type YamlArray = YamlValue[];
+
+export function parseYamlFile<T = YamlValue>(filePath: string): T {
   const resolvedPath = path.resolve(filePath);
 
   if (!fs.existsSync(resolvedPath)) {
-    throw new Error(`JSON file not found: ${resolvedPath}`);
+    throw new Error(`YAML file not found: ${resolvedPath}`);
   }
 
   const raw = fs.readFileSync(resolvedPath, 'utf8');
 
   try {
-    const parsed = JSON.parse(raw) as T;
+    const parsed = parseYaml(raw) as T;
     return parsed;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown parse error';
-    throw new Error(`Failed to parse JSON file "${resolvedPath}": ${message}`);
+    throw new Error(`Failed to parse YAML file "${resolvedPath}": ${message}`);
   }
 }
 
-export function getJsonValueByPath(source: JsonObject | JsonArray | JsonValue, pathExpression: string): JsonValue | undefined {
+export function getYamlValueByPath(
+  source: YamlObject | YamlArray | YamlValue,
+  pathExpression: string,
+): YamlValue | undefined {
   if (source === null || source === undefined) {
     return undefined;
   }
@@ -31,7 +45,7 @@ export function getJsonValueByPath(source: JsonObject | JsonArray | JsonValue, p
     .split('.')
     .filter(Boolean);
 
-  let current: JsonValue | undefined = source as JsonValue;
+  let current: YamlValue | undefined = source as YamlValue;
 
   for (const segment of segments) {
     if (current === null || current === undefined || typeof current !== 'object') {
@@ -51,13 +65,13 @@ export function getJsonValueByPath(source: JsonObject | JsonArray | JsonValue, p
       return undefined;
     }
 
-    current = (current as JsonObject)[segment];
+    current = (current as YamlObject)[segment];
   }
 
   return current;
 }
 
 export default {
-  parseJsonFile,
-  getJsonValueByPath,
+  parseYamlFile,
+  getYamlValueByPath,
 };

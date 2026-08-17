@@ -1,0 +1,58 @@
+name: "Scenario A: Create todo and verify in list"
+description: "Create a todo, get the created todo, list todos, verify created todo is in list"
+variables:
+  base_url: "https://jsonplaceholder.typicode.com"
+  user_id: "1"
+steps:
+  - id: create_todo
+    request:
+      method: POST
+      url: "{{base_url}}/todos"
+      body:
+        title: "kd-test-todo title 1"
+        completed: false
+        userId: "1"
+    capture:
+      - name: todo_id
+        from: body
+        path: id
+      - name: todo_text
+        from: body
+        path: title
+    assertions:
+      status:
+        equals: 201
+      body:
+        - path: id
+          exists: true
+        - path: title
+          exists: true
+
+  - id: get_created_todo
+    request:
+      method: GET
+      url: "{{base_url}}/todos/1"
+    assertions:
+      status:
+        equals: 200
+      body:
+        - path: id
+          equals: 1
+        - path: title
+          equals: "delectus aut autem"
+
+  - id: list_todos
+    request:
+      method: GET
+      url: "{{base_url}}/todos"
+    assertions:
+      status:
+        equals: 200
+
+  - id: missing_todo_in_list
+    request:
+      method: GET
+      url: "{{base_url}}/todos/12345"
+    assertions:
+      status:
+        equals: 404

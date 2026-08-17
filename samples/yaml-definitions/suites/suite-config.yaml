@@ -1,0 +1,16 @@
+suite:
+  name: "Your application name API Tests"
+  description: "Regression suite for application name API"
+
+config:
+  environment: "env/staging.json"
+  default_headers:
+    Content-Type: application/json
+    Accept: application/json
+  timeout_seconds: 15
+  retry:
+    attempts: 2
+    delay_seconds: 2
+
+variables:
+  base_url: "https://jsonplaceholder.typicode.com"

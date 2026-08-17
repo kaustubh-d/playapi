@@ -21,6 +21,7 @@
   "homepage": "https://github.com/kaustubh-d/playapi#readme",
   "devDependencies": {
     "@playwright/test": "^1.62.1",
-    "@types/node": "^26.2.0"
+    "@types/node": "^26.2.0",
+    "yaml": "^2.9.0"
   }
 }
