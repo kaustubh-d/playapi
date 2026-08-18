@@ -1,5 +1,5 @@
 suite:
-  name: "Your application name API Tests"
+  name: "Your application name API Tests loaded from YAML"
   description: "Regression suite for application name API"
 
 config:

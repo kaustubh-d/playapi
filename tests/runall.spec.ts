@@ -1,48 +1,38 @@
-import { test, expect } from '@playwright/test';
-import { existsSync, readdirSync } from 'node:fs';
-import * as path from 'node:path';
+import { test } from '@playwright/test';
 import { logger } from '../src/utils/logger';
 
-import { LoadedTestSuite, loadTestSuiteFromFolder } from '../src/test-loader';
+import { loadAllTests, TestSuites } from '../src/test-loader';
 import { executeScenario } from '../src/executors/scenario';
 
-const test_root = process.env.TEST_ROOT ?? __dirname;
-const suitesRoot = path.resolve(test_root, './yaml-definitions/suites');
-logger.info(`Looking for test suites in: ${suitesRoot}`);
-const suiteFolders: string[] = [];
+const testRoot = process.env.TEST_ROOT ?? __dirname;
+const suites: TestSuites = loadAllTests(testRoot)
 
-if (existsSync(path.join(suitesRoot, 'suite-config.json')) ||
-    existsSync(path.join(suitesRoot, 'suite-config.yaml'))) {
-  logger.info(`Found suite-config in root folder: ${suitesRoot}`);
-  suiteFolders.push(suitesRoot);
-} else {
-  logger.error(`No suite-config.json found in root folder: \
-    ${suitesRoot}. Looking for subfolders...`);
-  if (existsSync(suitesRoot)) {
-    for (const entry of readdirSync(suitesRoot, { withFileTypes: true })) {
-      if (entry.isDirectory()) {
-        suiteFolders.push(path.join(suitesRoot, entry.name));
-      }
-    }
+// Start dynamic test generation as per loaded test files.
+for (const suite of suites) {
+  const suiteName = suite.suiteConfig?.suite?.name;
+  if (suiteName) {
+    logger.info(`Running suite: ${suiteName}`);
+  } else {
+    logger.warn("Skipping suite due to partial information")
+    continue
   }
-}
-
-for (const suiteFolder of suiteFolders) {
-  const loadedSuite: LoadedTestSuite = loadTestSuiteFromFolder(suiteFolder);
-  const suiteName = loadedSuite.suiteConfig?.suite?.name ?? path.basename(suiteFolder);
-  logger.info(`Loaded suite: ${suiteName} from folder: ${suiteFolder}`);
-
   // Define suite
   test.describe(suiteName, () => {
-    for (const scenario of loadedSuite.scenarios) {
-      const scenarioName = scenario?.name ?? 'Unnamed scenario';
+    for (const scenario of suite.scenarios) {
+      const scenarioName = scenario?.name;
+      if (scenarioName) {
+      logger.info(`Running suite: ${scenarioName}`);
+    } else {
+      logger.warn("Skipping Scenario due to partial information")
+      continue
+    }
 
       // Define scenario based tests
       test(scenarioName, async ({ request }, testInfo) => {
         logger.debug(`Executing scenario: ${scenarioName}`);
 
         const capturedVariables = await executeScenario(request, testInfo,
-          scenario, loadedSuite.suiteConfig.variables);
+          scenario, suite.suiteConfig.variables);
 
         logger.debug(`Captured variables after executing scenario: ${scenarioName}:
           ${JSON.stringify(capturedVariables, null, 2)}`);

@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 
 import { logger } from './src/utils/logger';
 
@@ -9,9 +9,20 @@ logger.info('Loading Playwright Configuration file...');
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+import dotenv from 'dotenv';
+import path from 'node:path';
+
+const test_env = process.env.TEST_ENV ?? "dev";
+type TestEnvironments = 'dev' | 'uat' | 'prod';
+function isValidEnvironment(env: string): env is TestEnvironments {
+  return ['dev', 'uat', 'prod'].includes(env);
+}
+if (!isValidEnvironment(test_env)) {
+  logger.error(`❌ Error: Invalid TEST_ENV "${test_env}". Expected 'dev', 'uat', or 'prod'.`);
+  process.exit(1);
+}
+
+dotenv.config({ path: path.resolve(__dirname, `.env.${test_env}`) });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
